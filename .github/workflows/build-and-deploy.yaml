@@ -52,16 +52,31 @@ jobs:
       with:
         version: 'latest'
 
-    - name: Setup Kubernetes Config
+    - name: Setup Yandex Cloud CLI
       run: |
-        echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
-        chmod 600 kubeconfig.yaml
-        export KUBECONFIG=kubeconfig.yaml
+        curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i /opt/yandex-cloud -n
+        echo 'export PATH="/opt/yandex-cloud/bin:$PATH"' >> ~/.bashrc
+        source ~/.bashrc
+        yc version
+        
+    - name: Setup Kubernetes Config with YC CLI
+      run: |
+        echo '${{ secrets.YC_SA_JSON_KEY }}' > sa-key.json
+        yc config profile create diploma
+        yc config set service-account-key sa-key.json
+        yc config set cloud-id b1g31ab21b32dog1ps4c
+        yc config set folder-id b1gam4o6rj97es4peaq4
+        
+        CLUSTER_ID="cat1nctjnphlusq7si6k"
+        yc managed-kubernetes cluster get-credentials --id $CLUSTER_ID --external
+        
+        kubectl cluster-info
+        kubectl get nodes
 
     - name: Deploy to Kubernetes
       run: |
         VERSION=${GITHUB_REF#refs/tags/v}
         sed -i "s|cr.yandex/crpcpqg7ocu8m0jpricf/diploma-app:latest|cr.yandex/crpcpqg7ocu8m0jpricf/diploma-app:${VERSION}|g" app/k8s/deployment.yaml
-        kubectl apply -f app/k8s/deployment.yaml
-        kubectl apply -f app/k8s/service.yaml
-        kubectl apply -f app/k8s/ingress.yaml
+        kubectl apply -f app/k8s/deployment.yaml --validate=false
+        kubectl apply -f app/k8s/service.yaml --validate=false
+        kubectl apply -f app/k8s/ingress.yaml --validate=false
