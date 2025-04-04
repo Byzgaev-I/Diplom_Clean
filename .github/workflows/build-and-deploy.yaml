@@ -1,0 +1,69 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to Yandex Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: cr.yandex
+        username: json_key
+        password: ${{ secrets.YC_SA_JSON_KEY }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v3
+      with:
+        images: cr.yandex/crpcpqg7ocu8m0jpricf/diploma-app
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: ./app
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v1
+      with:
+        version: 'latest'
+
+    - name: Setup Kubernetes Config
+      run: |
+        echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
+        chmod 600 kubeconfig.yaml
+        export KUBECONFIG=kubeconfig.yaml
+
+    - name: Deploy to Kubernetes
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        sed -i "s|cr.yandex/crpcpqg7ocu8m0jpricf/diploma-app:latest|cr.yandex/crpcpqg7ocu8m0jpricf/diploma-app:${VERSION}|g" app/k8s/deployment.yaml
+        kubectl apply -f app/k8s/deployment.yaml
+        kubectl apply -f app/k8s/service.yaml
+        kubectl apply -f app/k8s/ingress.yaml
