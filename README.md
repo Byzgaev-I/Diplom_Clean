@@ -112,7 +112,88 @@ cd terraform/service-account
 
 Далее я создал основную инфраструктуру, включая VPC с подсетями в разных зонах доступности:
 
+# Создание директории для основной инфраструктуры
+```bash
+mkdir -p ~/diploma/Diplom_Byzgaev/terraform/infrastructure
+cd ~/diploma/Diplom_Byzgaev/terraform/infrastructure
+```
+# Получение ключей доступа
+```bash
+ACCESS_KEY=$(cd ../service-account && terraform output terraform_access_key)
+SECRET_KEY=$(cd ../service-account && terraform output -raw terraform_secret_key)
+BUCKET_NAME=$(cd ../service-account && terraform output terraform_bucket_name)
+```
+# Создание файла provider.tf с бэкендом S3
+```bash
+terraform {
+  required_providers {
+    yandex = {
+      source = "yandex-cloud/yandex"
+      version = "0.140.0"
+    }
+  }
+  
+  backend "s3" {
+    endpoints = {
+      s3 = "https://storage.yandexcloud.net"
+    }
+    bucket     = "${BUCKET_NAME}"
+    region     = "ru-central1"
+    key        = "terraform/infrastructure.tfstate"
+    access_key = "${ACCESS_KEY}"
+    secret_key = "${SECRET_KEY}"
 
+    skip_region_validation      = true
+    skip_credentials_validation = true
+    skip_requesting_account_id  = true
+  }
+  
+  required_version = ">= 0.13"
+}
+
+provider "yandex" {
+  token     = "y0__xCBgaYFGMHdEyDQ8vS1EqvdVwf5otUuJ2oUOCbCIUhZN822"
+  cloud_id  = "b1g31ab21b32dog1ps4c"
+  folder_id = "b1gam4o6rj97es4peaq4"
+  zone      = "ru-central1-a"
+}
+```
+
+# Создание файла network.tf для VPC и подсетей
+```bash
+# Создание VPC сети
+resource "yandex_vpc_network" "diploma-network" {
+  name = "diploma-network"
+}
+
+# Создание подсетей в разных зонах доступности
+resource "yandex_vpc_subnet" "subnet-a" {
+  name           = "subnet-a"
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.diploma-network.id
+  v4_cidr_blocks = ["10.1.0.0/16"]
+}
+
+resource "yandex_vpc_subnet" "subnet-b" {
+  name           = "subnet-b"
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.diploma-network.id
+  v4_cidr_blocks = ["10.2.0.0/16"]
+}
+
+resource "yandex_vpc_subnet" "subnet-d" {
+  name           = "subnet-d"
+  zone           = "ru-central1-d"
+  network_id     = yandex_vpc_network.diploma-network.id
+  v4_cidr_blocks = ["10.3.0.0/16"]
+}
+```
+
+# Инициализация и применение Terraform
+```bash
+terraform init
+terraform apply -auto-approve
+``` 
 
 
 
