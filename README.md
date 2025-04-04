@@ -19,12 +19,12 @@
 
 Первым шагом я создал сервисный аккаунт с необходимыми правами для работы Terraform:
 
-- Создание директории для Terraform
+**- Создание директории для Terraform**
 ```bash
 mkdir -p terraform/service-account
 cd terraform/service-account
 ```
-- Создание файла provider.tf
+**- Создание файла provider.tf**
 ```bash
 terraform {
   required_providers {
@@ -43,7 +43,7 @@ provider "yandex" {
   zone      = "ru-central1-a"
 } 
 ```
-- Создание файла service-account.tf
+**- Создание файла service-account.tf**
 ```bash
 # Создание сервисного аккаунта для Terraform
 resource "yandex_iam_service_account" "terraform" {
@@ -97,7 +97,7 @@ output "terraform_bucket_name" {
   value = yandex_storage_bucket.terraform-state.bucket
 }
 ```
-- Инициализация и применение Terraform
+**- Инициализация и применение Terraform**
 ```bash
 mkdir -p terraform/service-account
 cd terraform/service-account
