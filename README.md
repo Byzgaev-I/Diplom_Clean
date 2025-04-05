@@ -711,6 +711,8 @@ spec:
 
 ![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/11%20prometeus.png)
 
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/Снимок%20экрана%202025-04-05%20в%2001.01.16.png)
+
 ![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/12%20Alertmanager.png)
 
 ![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/13%20grafana.png)
@@ -850,6 +852,8 @@ jobs:
 ### 5.3 Тестирование CI/CD пайплайна
 
 **Успешное выполнение CI/CD пайплайна**
+
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/Снимок%20экрана%202025-04-05%20в%2001.26.01.png)
 
 ![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/17%20test%20CI%20Cd%20.png) 
 
