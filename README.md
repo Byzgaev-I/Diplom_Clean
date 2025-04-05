@@ -193,7 +193,10 @@ resource "yandex_vpc_subnet" "subnet-d" {
 ```bash
 terraform init
 terraform apply -auto-approve
-``` 
+```
+
+Машины делал непрерываемые из-за того что я не так быстро делаю и постоянно откатывался назад, передалеывая, а плюсом добавлялось еще и сброс ip и прочего каждые сутки, заставляя переписывать, путаться и т.д.   
+
 ![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/1.png)
 
 ![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/2.png)
