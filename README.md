@@ -513,25 +513,87 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-### Создание README.md
+### 2.2 Создание Kubernetes манифестов для приложения
+
+### Создание Deployment
 ```bash
-# Тестовое приложение для дипломного проекта
-
-Простой веб-сервер на базе Nginx, отдающий статическую страницу.
-
-## Сборка образа
-
-\`\`\`bash
-docker build -t diploma-app:latest .
-\`\`\`
-
-## Запуск контейнера
-
-\`\`\`bash
-docker run -d -p 8080:80 diploma-app:latest
-\`\`\`
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: diploma-app
+  labels:
+    app: diploma-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: diploma-app
+  template:
+    metadata:
+      labels:
+        app: diploma-app
+    spec:
+      containers:
+      - name: diploma-app
+        image: cr.yandex/crpcpqg7ocu8m0jpricf/diploma-app:latest
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "0.2"
+            memory: "128Mi"
+          requests:
+            cpu: "0.1"
+            memory: "64Mi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
 ```
 
+### Создание Service
+```bash
+apiVersion: v1
+kind: Service
+metadata:
+  name: diploma-app
+spec:
+  selector:
+    app: diploma-app
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+```
+
+### Создание Ingress
+```bash
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: diploma-app-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: diploma-app
+            port:
+              number: 80
+```
 
 
 
