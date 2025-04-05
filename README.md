@@ -644,22 +644,80 @@ helm install ingress-nginx ingress-nginx/ingress-nginx \
 
 ![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/9Установка%20Nginx%20Ingress%20Controller.png) 
 
+### 4.2 Установка системы мониторинга
+
+### Добавление репозитория Prometheus
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+```
+### Установка Prometheus Stack
+```bash
+helm install prometheus prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --create-namespace
+```
+### Создание LoadBalancer сервисов для доступа к Grafana и Prometheus
+```bash
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-lb
+  namespace: monitoring
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 3000
+    targetPort: 3000
+    name: grafana
+  selector:
+    app.kubernetes.io/name: grafana
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-lb
+  namespace: monitoring
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 9090
+    targetPort: 9090
+    name: prometheus
+  selector:
+    app.kubernetes.io/name: prometheus
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager-lb
+  namespace: monitoring
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 9093
+    targetPort: 9093
+    name: alertmanager
+  selector:
+    app.kubernetes.io/name: alertmanager
+```
+
+### - Тестовое приложение по адресу: http://84.201.170.235/
+### - Grafana по адресу: http://51.250.44.102:3000 (логин: admin, пароль: admin)
+### - Prometheus и Alertmanager доступны через port-forward
 
 
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/10.png)
 
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/11%20prometeus.png)
 
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/12%20Alertmanager.png)
 
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/13%20grafana.png)
 
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/14.png)
 
-
-
-
-
-
-
-
-
-
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/15%20namespace.png) 
 
 
 
