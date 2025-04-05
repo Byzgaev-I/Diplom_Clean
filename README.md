@@ -372,6 +372,166 @@ kubectl get pods --all-namespaces
 
 ![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/5%20доступ%20к%20кластеру.png)
 
+## 3) Создание тестового приложения
+
+**На этом этапе я подготовил тестовое приложение на базе Nginx, которое отдает статическую страницу.**
+
+### 3.1 Создание приложения и Dockerfile
+
+# Создание HTML-страницы
+```bash
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Дипломный проект - Byzgaev</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            overflow: hidden;
+            padding: 20px;
+        }
+        header {
+            background: #50b3a2;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+        .content {
+            margin-top: 20px;
+            background: white;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin: 0;
+        }
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Дипломный проект DevOps</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="content">
+            <h2>Тестовое приложение</h2>
+            <p>Это тестовое приложение для дипломного проекта по DevOps инженеру.</p>
+            <p>Проект включает:</p>
+            <ul>
+                <li>Облачная инфраструктура в Yandex.Cloud</li>
+                <li>Kubernetes кластер</li>
+                <li>Система мониторинга (Prometheus + Grafana)</li>
+                <li>CI/CD пайплайн с GitHub Actions</li>
+            </ul>
+            <p>Hostname: <span id="hostname"></span></p>
+            <p>Время сервера: <span id="server-time"></span></p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Byzgaev</p>
+        </div>
+    </footer>
+
+    <script>
+        // Получаем и отображаем имя хоста
+        fetch('/hostname')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('hostname').textContent = data;
+            })
+            .catch(error => {
+                document.getElementById('hostname').textContent = 'Недоступно';
+            });
+
+        // Получаем и отображаем время сервера
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('server-time').textContent = now.toLocaleString();
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>
+```
+
+# Создание конфигурации Nginx
+```bash
+server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html;
+    }
+
+    location /hostname {
+        return 200 \$hostname;
+    }
+
+    location /status {
+        stub_status on;
+        access_log off;
+        allow all;
+    }
+}
+```
+
+# Создание Dockerfile
+```bash
+FROM nginx:1.25.3-alpine
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY html /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+# Создание README.md
+```bash
+# Тестовое приложение для дипломного проекта
+
+Простой веб-сервер на базе Nginx, отдающий статическую страницу.
+
+## Сборка образа
+
+\`\`\`bash
+docker build -t diploma-app:latest .
+\`\`\`
+
+## Запуск контейнера
+
+\`\`\`bash
+docker run -d -p 8080:80 diploma-app:latest
+\`\`\`
+```
+
 
 
 
