@@ -378,7 +378,7 @@ kubectl get pods --all-namespaces
 
 ### 3.1 Создание приложения и Dockerfile
 
-# Создание HTML-страницы
+###Создание HTML-страницы
 ```bash
 <!DOCTYPE html>
 <html lang="ru">
@@ -478,7 +478,7 @@ kubectl get pods --all-namespaces
 </html>
 ```
 
-# Создание конфигурации Nginx
+### Создание конфигурации Nginx
 ```bash
 server {
     listen 80;
@@ -501,7 +501,7 @@ server {
 }
 ```
 
-# Создание Dockerfile
+### Создание Dockerfile
 ```bash
 FROM nginx:1.25.3-alpine
 
@@ -513,7 +513,7 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-# Создание README.md
+### Создание README.md
 ```bash
 # Тестовое приложение для дипломного проекта
 
