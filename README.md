@@ -621,10 +621,26 @@ docker push cr.yandex/${REGISTRY_ID}/diploma-app:latest
 
 
 
+## 4) Подготовка системы мониторинга и деплой приложения
 
+**На этом этапе я развернул систему мониторинга (Prometheus, Grafana, Alertmanager) и тестовое приложение в Kubernetes кластере.**
 
+### 4.1 Установка Ingress-контроллера
 
+### Установка Helm 
+```bash
+curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+```
+```bash
+# Установка Nginx Ingress Controller
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
 
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace \
+  --set controller.service.type=LoadBalancer
+```
 
 
 
