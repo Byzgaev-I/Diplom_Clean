@@ -719,11 +719,43 @@ spec:
 
 ![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/15%20namespace.png) 
 
+### 4.3 Деплой тестового приложения
+```bash
+# Деплой приложения в Kubernetes
+
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+kubectl apply -f k8s/ingress.yaml
+
+# Проверка статуса развёртывания
+kubectl get pods
+kubectl get services
+kubectl get ingress
+```
+
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/16%20lДеплой%20приложения%20в%20куб.png) 
 
 
+## 5) Установка и настройка CI/CD
 
+На этом этапе я настроил CI/CD систему для автоматической сборки Docker-образа и деплоя приложения при изменении кода.
 
+### 5.1 Создание сервисного аккаунта для CI/CD
+```bash
+# Создание сервисного аккаунта для CI/CD
+yc iam service-account create --name ci-cd-sa --description "Service account for CI/CD"
 
+# Получение ID сервисного аккаунта
+SA_ID=$(yc iam service-account get ci-cd-sa --format json | jq -r .id)
+
+# Назначение роли container-registry.images.pusher
+yc resource-manager folder add-access-binding --id b1gam4o6rj97es4peaq4 \
+  --role container-registry.images.pusher \
+  --subject serviceAccount:$SA_ID
+
+# Создание ключа для сервисного аккаунта
+yc iam key create --service-account-id $SA_ID --output ci-cd-sa-key.json
+```
 
 
 
