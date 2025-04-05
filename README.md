@@ -353,6 +353,33 @@ output "registry_id" {
 }
 ```
 
+### Применение Terraform
+```bash
+terraform apply -auto-approve
+```
+
+### 2.2 Создание Kubernetes кластера
+```bash
+# Получение конфигурации для доступа к кластеру
+CLUSTER_ID=$(terraform output -raw cluster_id)
+yc managed-kubernetes cluster get-credentials --id $CLUSTER_ID --external
+```
+# Проверка доступа к кластеру
+```bash
+kubectl get nodes
+kubectl get pods --all-namespaces
+```
+
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/5%20доступ%20к%20кластеру.png)
+
+
+
+
+
+
+
+
+
 
 
 
