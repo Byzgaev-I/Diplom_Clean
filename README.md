@@ -513,7 +513,7 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-### 2.2 Создание Kubernetes манифестов для приложения
+### 3.2 Создание Kubernetes манифестов для приложения
 
 ### Создание Deployment
 ```bash
@@ -594,6 +594,28 @@ spec:
             port:
               number: 80
 ```
+
+### 3.3 Сборка и публикация Docker-образа
+
+```bash
+### Получение ID реестра
+REGISTRY_ID=$(cd ~/diploma/Diplom_Byzgaev/terraform/infrastructure && terraform output -raw registry_id)
+
+### Аутентификация в Container Registry
+yc container registry configure-docker
+
+### Сборка образа
+docker build -t cr.yandex/${REGISTRY_ID}/diploma-app:latest .
+
+### Отправка образа в реестр
+docker push cr.yandex/${REGISTRY_ID}/diploma-app:latest
+```
+
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/6%20Container%20Registri.png)
+
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/7%20.png)
+
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/8%20приложение%20.png)
 
 
 
