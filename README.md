@@ -757,16 +757,119 @@ yc resource-manager folder add-access-binding --id b1gam4o6rj97es4peaq4 \
 yc iam key create --service-account-id $SA_ID --output ci-cd-sa-key.json
 ```
 
+### 5.2 Настройка GitHub Actions
+
+
+###Создание файла workflow
+```bash
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to Yandex Container Registry
+      run: |
+        echo '\${{ secrets.YC_SA_JSON_KEY }}' > key.json
+        cat key.json | docker login --username json_key --password-stdin cr.yandex
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v3
+      with:
+        images: cr.yandex/crpcpqg7ocu8m0jpricf/diploma-app
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: ./app
+        push: true
+        tags: \${{ steps.meta.outputs.tags }}
+        labels: \${{ steps.meta.outputs.labels }}
+
+  deploy:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v1
+      with:
+        version: 'latest'
+
+    - name: Setup Yandex Cloud CLI
+      run: |
+        curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i /opt/yandex-cloud -n
+        echo 'export PATH="/opt/yandex-cloud/bin:\$PATH"' >> ~/.bashrc
+        source ~/.bashrc
+        yc version
+        
+    - name: Setup Kubernetes Config with YC CLI
+      run: |
+        echo '\${{ secrets.YC_SA_JSON_KEY }}' > sa-key.json
+        yc config profile create diploma
+        yc config set service-account-key sa-key.json
+        yc config set cloud-id b1g31ab21b32dog1ps4c
+        yc config set folder-id b1gam4o6rj97es4peaq4
+        
+        CLUSTER_ID="cat1nctjnphlusq7si6k"
+        yc managed-kubernetes cluster get-credentials --id \$CLUSTER_ID --external
+        
+        kubectl cluster-info
+        kubectl get nodes
+
+    - name: Deploy to Kubernetes
+      run: |
+        VERSION=\${GITHUB_REF#refs/tags/v}
+        sed -i "s|cr.yandex/crpcpqg7ocu8m0jpricf/diploma-app:latest|cr.yandex/crpcpqg7ocu8m0jpricf/diploma-app:\${VERSION}|g" app/k8s/deployment.yaml
+        kubectl apply -f app/k8s/deployment.yaml --validate=false
+        kubectl apply -f app/k8s/service.yaml --validate=false
+        kubectl apply -f app/k8s/ingress.yaml --validate=false
+```
+
+
+### 5.3 Тестирование CI/CD пайплайна
+
+**Успешное выполнение CI/CD пайплайна**
+
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/17%20test%20CI%20Cd%20.png) 
 
 
 
+## 6) Результаты
 
+### В результате выполнения дипломного проекта я успешно создал:
 
+- Облачную инфраструктуру в Яндекс.Облаке с использованием Terraform
+- Кластер Kubernetes с группой узлов
+- Тестовое приложение на базе Nginx с Dockerfile
+- Систему мониторинга с Prometheus, Grafana и Alertmanager
+- CI/CD пайплайн с использованием GitHub Actions
 
+### 6.1 Ссылки на рабочие сервисы
 
-
-
-
+### Тестовое приложение: http://84.201.170.235/
+### Grafana: http://51.250.44.102:3000 (логин: admin, пароль: admin)
+### CI/CD интерфейс: https://github.com/Byzgaev-I/Diplom_Clean/actions
 
 
 
