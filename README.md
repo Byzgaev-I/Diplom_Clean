@@ -642,6 +642,8 @@ helm install ingress-nginx ingress-nginx/ingress-nginx \
   --set controller.service.type=LoadBalancer
 ```
 
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/9Установка%20Nginx%20Ingress%20Controller.png) 
+
 
 
 
