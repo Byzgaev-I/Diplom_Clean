@@ -615,7 +615,7 @@ docker push cr.yandex/${REGISTRY_ID}/diploma-app:latest
 
 ![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/7%20.png)
 
-### Приложение доступно по адресу ![image](http://84.201.170.235)
+### Приложение доступно по адресу (http://84.201.170.235)
 
 ![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/8%20приложение%20.png)
 
