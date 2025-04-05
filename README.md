@@ -364,7 +364,7 @@ terraform apply -auto-approve
 CLUSTER_ID=$(terraform output -raw cluster_id)
 yc managed-kubernetes cluster get-credentials --id $CLUSTER_ID --external
 ```
-# Проверка доступа к кластеру
+### Проверка доступа к кластеру
 ```bash
 kubectl get nodes
 kubectl get pods --all-namespaces
