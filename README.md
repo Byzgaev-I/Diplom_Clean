@@ -194,9 +194,13 @@ resource "yandex_vpc_subnet" "subnet-d" {
 terraform init
 terraform apply -auto-approve
 ``` 
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/1.png)
 
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/2.png)
 
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/3%20.png)
 
+![image](https://github.com/Byzgaev-I/Diplom_Clean/blob/main/4.png) 
 
 
 
